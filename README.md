@@ -30,4 +30,4 @@ cargo run
 
 - Once the blocks are fetched, we use their base fees to calculate the volatility.
 
-> Note: Confirm with Finn if calculation is correct. We only need `block.basefee`s ? No `block.timestamp`s for the calculation?
+> Note: Confirm with Finn if calculation is correct. We only need `block.basefees` ? No `block.timestamps` for the calculation?
