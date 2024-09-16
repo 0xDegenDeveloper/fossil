@@ -57,7 +57,7 @@ pub async fn get_closest_block(
 }
 
 // Gets an array of blocks between from_block and to_block (both inclusive)
-pub async fn get_blocks(
+pub async fn fetch_blocks(
     from_block: u64,
     to_block: u64,
     provider: Arc<Provider<Http>>,

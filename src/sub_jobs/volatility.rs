@@ -1,4 +1,4 @@
-use crate::utils::data_fetch::{get_blocks, get_closest_block};
+use crate::utils::data_fetch::{fetch_blocks, get_closest_block};
 use ethers::prelude::*;
 use std::sync::Arc;
 
@@ -6,7 +6,7 @@ use crate::utils::conversion::wei_to_gwei;
 
 pub async fn calculate_volatility(
     timestamp: u64,
-    block_range: u64,
+    block_number_range: u64,
     provider: Arc<Provider<Http>>,
 ) -> Result<f64, ProviderError> {
     // Fetch block closest to this timestamp
@@ -14,14 +14,14 @@ pub async fn calculate_volatility(
         Ok(block) => {
             // Calculate block number range
             let to_block = block.number.unwrap().as_u64();
-            let from_block = if to_block >= block_range {
-                to_block - block_range
+            let from_block = if to_block >= block_number_range {
+                to_block - block_number_range
             } else {
                 0
             };
 
             // Fetch blocks in the range
-            let blocks = get_blocks(from_block, to_block, provider.clone()).await?;
+            let blocks = fetch_blocks(from_block, to_block, provider.clone()).await?;
 
             // If there are less than 2 blocks, then we cannot calculate returns
             if blocks.len() < 2 {

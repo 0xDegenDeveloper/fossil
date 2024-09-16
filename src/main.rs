@@ -18,14 +18,14 @@ fn main() {
 
     // Mock job request
     let timestamp = 1726514877; // ...67
-    let block_num_range = 11;
+    let block_number_range = 11;
 
     // Fetch block closest to this number
     let rt = Runtime::new().unwrap();
     rt.block_on(async {
         match sub_jobs::volatility::calculate_volatility(
             timestamp,
-            block_num_range,
+            block_number_range,
             provider.clone(),
         )
         .await

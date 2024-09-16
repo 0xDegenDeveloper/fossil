@@ -35,8 +35,9 @@ pub fn add_synthetic_blocks(amount: u64, mut blocks: Vec<Block<TxHash>>) -> Vec<
 
                 // Ensure base fee is not 0, if it is, reset to 15 gwei
                 if new_base_fee_wei.is_zero() {
-                    last_block.base_fee_per_gas =
-                        Some(U256::from(15_u128 * 1_000_000_000_u128 * 1_000_000_000_u128));
+                    last_block.base_fee_per_gas = Some(U256::from(
+                        15_u128 * 1_000_000_000_u128 * 1_000_000_000_u128,
+                    ));
                 } else {
                     last_block.base_fee_per_gas = Some(new_base_fee_wei);
                 }
