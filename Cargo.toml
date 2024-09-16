@@ -1,0 +1,12 @@
+[package]
+name = "fossil"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+ethers = "2.0"
+futures = "0.3"
+chrono = "0.4"
+rand = "0.8"
+dotenv = "0.15.0"
