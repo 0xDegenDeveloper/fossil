@@ -51,8 +51,7 @@ pub async fn calculate_volatility(
             / returns.len() as f64;
 
         // Calculate volatility (standard deviation) as a BPS integer
-        let volatility_bps = (variance.sqrt() * 10_000.0).round() as u128;
-        Ok(volatility_bps)
+        Ok((variance.sqrt() * 10_000.0).round() as u128)
     } else {
         eprintln!("Error fetching block closest to t= {}", timestamp);
         Ok(0)
