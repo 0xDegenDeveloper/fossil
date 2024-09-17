@@ -48,6 +48,7 @@ pub async fn get_closest_block(
     provider: Arc<Provider<Http>>,
 ) -> Result<Block<TxHash>, ProviderError> {
     println!("Finding block closest to timestamp: {}...\n", timestamp);
+
     // Fetch latest block information
     let latest_block = provider.get_block(BlockNumber::Latest).await?.unwrap();
     let latest_block_number = latest_block.number.unwrap().as_u64();
