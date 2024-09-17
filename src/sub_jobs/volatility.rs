@@ -2,70 +2,59 @@ use crate::utils::data_fetch::{fetch_blocks, get_closest_block};
 use ethers::prelude::*;
 use std::sync::Arc;
 
-use crate::utils::conversion::wei_to_gwei;
-
+// Returns BPS (i.e., 5001 == 50.01% VOL)
 pub async fn calculate_volatility(
     timestamp: u64,
     block_number_range: u64,
     provider: Arc<Provider<Http>>,
-) -> Result<f64, ProviderError> {
-    // Fetch block closest to this timestamp
-    match get_closest_block(timestamp, provider.clone()).await {
-        Ok(block) => {
-            // Calculate block number range
-            let to_block = block.number.unwrap().as_u64();
-            let from_block = if to_block >= block_number_range {
-                to_block - block_number_range
-            } else {
-                0
-            };
+) -> Result<u128, ProviderError> {
+    if let Ok(block) = get_closest_block(timestamp, provider.clone()).await {
+        // Fetch blocks in the range
+        let to_block = block.number.unwrap().as_u64();
+        let from_block = to_block.saturating_sub(block_number_range);
+        let blocks = fetch_blocks(from_block, to_block, provider.clone()).await?;
 
-            // Fetch blocks in the range
-            let blocks = fetch_blocks(from_block, to_block, provider.clone()).await?;
+        // If there are less than 2 blocks, we cannot calculate returns
+        if blocks.len() < 2 {
+            return Ok(0);
+        }
 
-            // If there are less than 2 blocks, then we cannot calculate returns
-            if blocks.len() < 2 {
-                return Ok(0.0);
-            }
-
-            // Calculate returns
-            let mut returns: Vec<f64> = Vec::new();
-            for i in 1..blocks.len() {
-                let basefee_current = wei_to_gwei(blocks[i].base_fee_per_gas.unwrap_or_default());
-                let basefee_previous =
-                    wei_to_gwei(blocks[i - 1].base_fee_per_gas.unwrap_or_default());
-
-                if basefee_previous == 0.0 {
+        // Calculate log returns
+        let mut returns: Vec<f64> = Vec::new();
+        for i in 1..blocks.len() {
+            if let (Some(basefee_current), Some(basefee_previous)) =
+                (blocks[i].base_fee_per_gas, blocks[i - 1].base_fee_per_gas)
+            {
+                if basefee_previous.is_zero() {
                     continue;
                 }
 
-                let return_i = (basefee_current / basefee_previous).ln();
+                let basefee_current_f64 = basefee_current.as_u128() as f64;
+                let basefee_previous_f64 = basefee_previous.as_u128() as f64;
+
+                let return_i = (basefee_current_f64 / basefee_previous_f64).ln();
                 returns.push(return_i);
             }
-
-            // If there are no returns, return 0.0
-            if returns.is_empty() {
-                return Ok(0.0);
-            }
-
-            // Calculate mean return
-            let mean_return = returns.iter().sum::<f64>() / returns.len() as f64;
-
-            // Calculate variance
-            let variance = returns
-                .iter()
-                .map(|&r| (r - mean_return).powi(2))
-                .sum::<f64>()
-                / returns.len() as f64;
-
-            // Calculate volatility
-            let volatility = variance.sqrt();
-
-            Ok(volatility)
         }
-        Err(e) => {
-            eprintln!("Error fetching block: {}", e);
-            Ok(0.0)
+
+        // If there are no returns, return 0
+        if returns.is_empty() {
+            return Ok(0);
         }
+
+        // Calculate average return
+        let mean_return = returns.iter().sum::<f64>() / returns.len() as f64;
+        let variance = returns
+            .iter()
+            .map(|&r| (r - mean_return).powi(2))
+            .sum::<f64>()
+            / returns.len() as f64;
+
+        // Calculate volatility (standard deviation) as a BPS integer
+        let volatility_bps = (variance.sqrt() * 10_000.0).round() as u128;
+        Ok(volatility_bps)
+    } else {
+        eprintln!("Error fetching block closest to t= {}", timestamp);
+        Ok(0)
     }
 }
