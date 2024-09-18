@@ -7,31 +7,27 @@ mod utils;
 
 #[tokio::main]
 async fn main() {
-    // Mock a job request
-    let (timestamp, block_number_range) = (1726514877, 5);
-
     println!("\n/// VOLATILITY ///\n");
+
+    // Mock a job request for "now" spanning 5 blocks
+    let now = 1726514877;
+    let range = 12 * 5;
+    let (from_timestamp, to_timestamp) = (now - range, now);
 
     // Load environment variables
     dotenv().ok();
-    let infura_project_id = env::var("INFURA_PROJECT_ID").expect("INFURA_PROJECT_ID must be set");
+    let rpc_url = env::var("RPC_URL").expect("RPC_URL must be set");
 
     // Setup provider
-    let provider = Arc::new(
-        Provider::<Http>::try_from(format!(
-            "https://mainnet.infura.io/v3/{}",
-            infura_project_id
-        ))
-        .expect("Failed to create provider"),
-    );
+    let provider =
+        Arc::new(Provider::<Http>::try_from(rpc_url).expect("Failed to create provider"));
 
     // Call async function directly with `.await`
-    match sub_jobs::volatility::calculate_volatility(timestamp, block_number_range, provider).await
-    {
+    match sub_jobs::volatility::calculate_volatility(from_timestamp, to_timestamp, provider).await {
         Ok(vol) => println!("> VOL = {:.4}% ({} as u128)\n", vol as f32 / 10_000.0, vol),
         Err(e) => eprintln!(
-            "Error calculating volatility for timestamp {}: {}",
-            timestamp, e
+            "Error calculating volatility over timestamps: [{}, {}]\n\nErr: {}",
+            from_timestamp, to_timestamp, e
         ),
     }
 }

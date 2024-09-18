@@ -8,7 +8,7 @@
 git clone https://github.com/0xDegenDeveloper/fossil fossil && cd fossil
 ```
 
-2. Copy `.example.env` into `.env`, adding your infura API key (for ETH mainnet).
+2. Copy `.example.env` into `.env`, adding your own RPC_URL (for ETH mainnet).
 
 3. Install dependencies:
 

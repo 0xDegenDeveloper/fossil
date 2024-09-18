@@ -2,7 +2,6 @@ use crate::utils::conversion::to_gwei;
 use ethers::core::types::{Block, TxHash, U256, U64};
 use rand::Rng;
 
-
 /// ADDING SYNTHETIC BLOCKS ///
 
 const SYNTHETIC_BLOCKS_TO_ADD: u64 = 100;
@@ -86,9 +85,5 @@ fn _compound_increase(block: &mut Block<TxHash>) {
 
 // Helper to print the block found in the binary search
 pub fn print_block_found(ref block: &Block<TxHash>) {
-    println!(
-        "> found block with timestamp:       {} (#{})\n",
-        block.timestamp,
-        block.number.unwrap(),
-    );
+    println!("> found block with timestamp: {}\n", block.timestamp,);
 }
