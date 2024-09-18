@@ -4,8 +4,6 @@ use ethers::types::{BlockNumber, TxHash};
 use futures::future::join_all;
 use std::sync::Arc;
 
-const SYNTHETIC_BLOCKS_TO_ADD: u64 = 1_000;
-
 // Gets an array of blocks between from_block and to_block (both inclusive)
 pub async fn fetch_blocks(
     from_block: u64,
@@ -39,7 +37,8 @@ pub async fn fetch_blocks(
     }
 
     // Spoof extra blocks to stress test the volatility calculation
-    Ok(add_synthetic_blocks(SYNTHETIC_BLOCKS_TO_ADD, blocks))
+    add_synthetic_blocks(&mut blocks);
+    Ok(blocks)
 }
 
 // Find the block closest to the given timestamp, panics if the timestamp is in the future (> 1 block)

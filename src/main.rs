@@ -7,6 +7,9 @@ mod utils;
 
 #[tokio::main]
 async fn main() {
+    // Mock a job request
+    let (timestamp, block_number_range) = (1726514877, 5);
+
     println!("\n/// VOLATILITY ///\n");
 
     // Load environment variables
@@ -21,9 +24,6 @@ async fn main() {
         ))
         .expect("Failed to create provider"),
     );
-
-    // Mock a job request
-    let (timestamp, block_number_range) = (1726514877, 11);
 
     // Call async function directly with `.await`
     match sub_jobs::volatility::calculate_volatility(timestamp, block_number_range, provider).await
