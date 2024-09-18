@@ -10,10 +10,10 @@ pub async fn calculate_volatility(
     // Fetch blocks
     let blocks = fetch_blocks(from_timestamp, to_timestamp).await?;
 
-    // If there are less than 2 blocks, we cannot calculate returns
+    // - If there are less than 2 blocks, we cannot calculate returns
     if blocks.len() < 2 {
         return Ok(0);
-
+    }
 
     // Calculate log returns
     let mut returns: Vec<f64> = Vec::new();
@@ -32,7 +32,7 @@ pub async fn calculate_volatility(
         }
     }
 
-    // If there are no returns the volatility is 0
+    // - If there are no returns the volatility is 0
     if returns.is_empty() {
         return Ok(0);
     }
@@ -40,7 +40,7 @@ pub async fn calculate_volatility(
     // Calculate average returns
     let mean_return = returns.iter().sum::<f64>() / returns.len() as f64;
 
-    // Calculate variance of returns
+    // Calculate variance of average returns
     let variance = returns
         .iter()
         .map(|&r| (r - mean_return).powi(2))
