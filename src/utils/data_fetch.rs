@@ -75,7 +75,7 @@ pub async fn get_closest_block_below(
     timestamp: u64,
     provider: Arc<Provider<Http>>,
 ) -> Result<Block<TxHash>, ProviderError> {
-    println!("Finding block closest timestamp: {}...\n", timestamp);
+    println!("Finding block closest below timestamp: {}...\n", timestamp);
 
     // Fetch latest block information
     let latest_block = provider.get_block(BlockNumber::Latest).await?.unwrap();
@@ -114,7 +114,7 @@ pub async fn get_closest_block_above(
     timestamp: u64,
     provider: Arc<Provider<Http>>,
 ) -> Result<Block<TxHash>, ProviderError> {
-    println!("Finding block closest timestamp: {}...\n", timestamp);
+    println!("Finding block closest above timestamp: {}...\n", timestamp);
 
     // Fetch latest block information
     let latest_block = provider.get_block(BlockNumber::Latest).await?.unwrap();
