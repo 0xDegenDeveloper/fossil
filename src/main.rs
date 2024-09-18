@@ -14,6 +14,6 @@ async fn main() {
         .expect("Error calculating volatility");
 
     println!("----------------------------------------");
-    println!("> VOL = {:.4}% ({} as u128)", vol as f32 / 10_000.0, vol);
+    println!("> VOL = {:.4}%, {} as u128", vol as f32 / 10_000.0, vol);
     println!("----------------------------------------");
 }

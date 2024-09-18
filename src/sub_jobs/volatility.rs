@@ -2,9 +2,6 @@ use crate::utils::data_fetch::fetch_blocks;
 
 use ethers::prelude::*;
 
-// Volatility is the standard deviation of the variance
-// Variaance is the average squared difference between each log return and the mean
-// Log return is the natural logarithm of the ratio of the current base fee to the previous base fee
 // Returns BPS (i.e., 5001 == 50.01% VOL)
 pub async fn calculate_volatility(
     from_timestamp: u64,
@@ -16,7 +13,7 @@ pub async fn calculate_volatility(
     // If there are less than 2 blocks, we cannot calculate returns
     if blocks.len() < 2 {
         return Ok(0);
-    }
+
 
     // Calculate log returns
     let mut returns: Vec<f64> = Vec::new();
@@ -40,16 +37,16 @@ pub async fn calculate_volatility(
         return Ok(0);
     }
 
-    // Calculate average log returns
+    // Calculate average returns
     let mean_return = returns.iter().sum::<f64>() / returns.len() as f64;
 
-    // Calculate variance
+    // Calculate variance of returns
     let variance = returns
         .iter()
         .map(|&r| (r - mean_return).powi(2))
         .sum::<f64>()
         / returns.len() as f64;
 
-    // Calculate volatility (standard deviation) as a BPS integer
+    // Square root variance and translate to BPS (integer)
     Ok((variance.sqrt() * 10_000.0).round() as u128)
 }
