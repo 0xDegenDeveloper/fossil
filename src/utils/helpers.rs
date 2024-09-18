@@ -7,14 +7,14 @@ use rand::Rng;
 const SYNTHETIC_BLOCKS_TO_ADD: u64 = 100;
 
 pub fn add_synthetic_blocks(blocks: &mut Vec<Block<TxHash>>) {
-    println!("Adding {} synthetic blocks...\n", SYNTHETIC_BLOCKS_TO_ADD);
+    println!("- Adding {} synthetic blocks...\n", SYNTHETIC_BLOCKS_TO_ADD);
 
     // Generate a spoof genesis block if necessary
     if blocks.is_empty()
         || blocks.last().unwrap().number.is_none()
         || blocks.last().unwrap().base_fee_per_gas.is_none()
     {
-        println!("> Generating a spoof genesis block...\n");
+        println!("\t> Generating a spoof genesis block...\n");
         blocks.push(Block::<TxHash> {
             number: Some(U64::one()),
             timestamp: U256::from(123456789),
@@ -59,7 +59,7 @@ fn _random_change(block: &mut Block<TxHash>) {
 
         // Ensure base fee does not drop below 0.01 gwei, reset to 5 gwei if it does
         if new_base_fee < to_gwei(0.01) {
-            println!("> WARNING: Resetting base fee to 5 gwei\n");
+            println!("\t> WARNING: Resetting base fee to 5 gwei\n");
             block.base_fee_per_gas = Some(U256::from(to_gwei(5.0)));
         } else {
             block.base_fee_per_gas = Some(new_base_fee);
@@ -84,6 +84,7 @@ fn _compound_increase(block: &mut Block<TxHash>) {
 /// OTHER ///
 
 // Helper to print the block found in the binary search
-pub fn print_block_found(ref block: &Block<TxHash>) {
-    println!("> found block with timestamp: {}\n", block.timestamp,);
+pub fn print_block_found(ref _block: &Block<TxHash>) {
+    //println!("> found block with timestamp: {}\n", block.timestamp,);
+    //println!(">\n");
 }

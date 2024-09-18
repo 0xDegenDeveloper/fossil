@@ -1,18 +1,17 @@
 use crate::utils::data_fetch::fetch_blocks;
+
 use ethers::prelude::*;
-use std::sync::Arc;
 
 // Volatility is the standard deviation of the variance
-// Vairance is the average squared difference between each log return and the mean
+// Variaance is the average squared difference between each log return and the mean
 // Log return is the natural logarithm of the ratio of the current base fee to the previous base fee
 // Returns BPS (i.e., 5001 == 50.01% VOL)
 pub async fn calculate_volatility(
     from_timestamp: u64,
     to_timestamp: u64,
-    provider: Arc<Provider<Http>>,
 ) -> Result<u128, ProviderError> {
     // Fetch blocks
-    let blocks = fetch_blocks(from_timestamp, to_timestamp, provider.clone()).await?;
+    let blocks = fetch_blocks(from_timestamp, to_timestamp).await?;
 
     // If there are less than 2 blocks, we cannot calculate returns
     if blocks.len() < 2 {
