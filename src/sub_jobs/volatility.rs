@@ -1,19 +1,17 @@
 use crate::utils::data_fetch::fetch_blocks;
-
 use ethers::prelude::*;
 
-// Returns BPS (i.e., 5001 == 50.01% VOL)
+// Returns volatility as BPS (i.e., 5001 means VOL=50.01%)
 pub async fn calculate_volatility(
     from_timestamp: u64,
     to_timestamp: u64,
 ) -> Result<u128, ProviderError> {
     // Fetch blocks
     let blocks = fetch_blocks(from_timestamp, to_timestamp).await?;
-
-    // - If there are less than 2 blocks, we cannot calculate returns
-    if blocks.len() < 2 {
-        return Ok(0);
-    }
+    assert!(
+        blocks.len() > 2,
+        "Cannot calculate returns if there are < 2 blocks"
+    );
 
     // Calculate log returns
     let mut returns: Vec<f64> = Vec::new();
@@ -47,6 +45,6 @@ pub async fn calculate_volatility(
         .sum::<f64>()
         / returns.len() as f64;
 
-    // Square root variance and translate to BPS (integer)
+    // Square root variance to get volatility, translate to BPS (integer)
     Ok((variance.sqrt() * 10_000.0).round() as u128)
 }

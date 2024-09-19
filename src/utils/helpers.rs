@@ -6,6 +6,42 @@ use rand::Rng;
 
 const SYNTHETIC_BLOCKS_TO_ADD: u64 = 100;
 
+// Define the types of base fee changes
+pub enum BaseFeeChange {
+    Random,
+    //Custom,
+}
+
+// Update a block's base fee
+fn update_base_fee(mut block: &mut Block<TxHash>, change_type: BaseFeeChange) {
+    match change_type {
+        BaseFeeChange::Random => _random_change(&mut block),
+        //BaseFeeChange::Custom => _custom_increase(&mut block),
+    }
+}
+
+fn _custom_change(_block: &mut Block<TxHash>) {
+    // < ... > //
+}
+
+// Change a block's base fee by a random percentage between -12.5% and +12.5%
+fn _random_change(block: &mut Block<TxHash>) {
+    if let Some(base_fee) = block.base_fee_per_gas {
+        let mut random = rand::thread_rng();
+        let percentage_change = 1.0 + random.gen_range(-0.125..=0.125);
+        let new_base_fee = U256::from((base_fee.as_u64() as f64 * percentage_change) as u64);
+
+        // Ensure base fee does not trail to 0 gwei
+        if new_base_fee < to_gwei(0.01) {
+            println!("\t> WARNING: Resetting base fee to 10 gwei\n");
+            block.base_fee_per_gas = Some(U256::from(to_gwei(10.0)));
+        } else {
+            block.base_fee_per_gas = Some(new_base_fee);
+        }
+    }
+}
+
+// Add synthetic blocks to the provided vector
 pub fn add_synthetic_blocks(blocks: &mut Vec<Block<TxHash>>) {
     println!("- Adding {} synthetic blocks...\n", SYNTHETIC_BLOCKS_TO_ADD);
 
@@ -35,56 +71,4 @@ pub fn add_synthetic_blocks(blocks: &mut Vec<Block<TxHash>>) {
 
         blocks.push(last_block.clone());
     }
-}
-
-pub enum BaseFeeChange {
-    Random,
-    //Constant,
-    //SteadyIncrease,
-}
-
-fn update_base_fee(mut block: &mut Block<TxHash>, change_type: BaseFeeChange) {
-    match change_type {
-        BaseFeeChange::Random => _random_change(&mut block),
-        //BaseFeeChange::SteadyIncrease => _steady_increase(&mut block),
-        //_ => (),
-    }
-}
-
-fn _random_change(block: &mut Block<TxHash>) {
-    if let Some(base_fee) = block.base_fee_per_gas {
-        let mut random = rand::thread_rng();
-        let percentage_change = 1.0 + random.gen_range(-0.125..=0.125);
-        let new_base_fee = U256::from((base_fee.as_u64() as f64 * percentage_change) as u64);
-
-        // Ensure base fee does not drop below 0.01 gwei, reset to 5 gwei if it does
-        if new_base_fee < to_gwei(0.01) {
-            println!("\t> WARNING: Resetting base fee to 5 gwei\n");
-            block.base_fee_per_gas = Some(U256::from(to_gwei(5.0)));
-        } else {
-            block.base_fee_per_gas = Some(new_base_fee);
-        }
-    }
-}
-
-fn _steady_increase(block: &mut Block<TxHash>) {
-    if let Some(base_fee) = block.base_fee_per_gas {
-        let new_base_fee = U256::from((base_fee.as_u64() as f64 * 1.1) as u64);
-        block.base_fee_per_gas = Some(new_base_fee);
-    }
-}
-
-fn _compound_increase(block: &mut Block<TxHash>) {
-    if let Some(base_fee) = block.base_fee_per_gas {
-        let new_base_fee = U256::from((base_fee.as_u64() as f64 * 2.0) as u64);
-        block.base_fee_per_gas = Some(new_base_fee);
-    }
-}
-
-/// OTHER ///
-
-// Helper to print the block found in the binary search
-pub fn print_block_found(ref _block: &Block<TxHash>) {
-    //println!("> found block with timestamp: {}\n", block.timestamp,);
-    //println!(">\n");
 }
